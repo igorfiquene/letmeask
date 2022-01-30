@@ -1,3 +1,4 @@
+import { FormEvent, useState } from 'react';
 import { Link } from 'react-router-dom';
 import illustrationImg from '../assets/images/illustration.svg'
 import logoImg from '../assets/images/logo.svg';
@@ -5,11 +6,26 @@ import { Button } from '../components/Button';
 
 import '../styles/auth.scss';
 import { useAuth } from '../hooks/useAuth';
+import { database } from '../services/firebase';
 
 export function NewRoom() {
-	// const { user } = useAuth()
+	const { user } = useAuth()
 
-	async function handleCreateRoom() {
+	const [newRoom, setNewRoom] = useState('')
+
+	async function handleCreateRoom(event: FormEvent) {
+		event.preventDefault()
+
+		if (newRoom.trim() === '') {
+			return
+		}
+
+		const roomRef = database.ref('rooms')
+
+		const firebaseRoom = await roomRef.push({
+			title: newRoom,
+			authorId: user?.id
+		})
 		
 	}
 	
@@ -28,6 +44,8 @@ export function NewRoom() {
 						<input 
 							type="text"
 							placeholder="Nome da sala"
+							onChange={event => setNewRoom(event.target.value)}
+							value={newRoom}
 						/>
 						<Button type="submit">
 							Criar sala
